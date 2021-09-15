@@ -1,4 +1,4 @@
-**Project management for the pool construction industry**
+**Project management and communication platform for the pool construction industry**
 
 **Introduction**
 
