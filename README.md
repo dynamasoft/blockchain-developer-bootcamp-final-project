@@ -17,8 +17,8 @@ It is powered by blockchain technology to create transparency in project managem
 Pool vendor can manage their project easily, get real-time updates from their subcontractors, and can be viewed instantly by the pool owners. Any delay can be communicated effectively thus the expectations can be managed sooner than later.  
 
 **Scope of Project.**
-1. Pool vendor creates a project, including the pool design, location, and pool owner.
+1. Pool vendor creates a project to add the pool design, location, and information about the pool owner.
 2. Pool vendor invites all the subcontractors to join the project.
 3. Pool vendor assigns the task to the subcontractors.
 4. Subcontractors update the status including date and notes.
-5. Homeowner receives a notification.
+5. Homeowner receives a notification with updates.
