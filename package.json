@@ -1,0 +1,22 @@
+{
+  "name": "blockchain-developer-bootcamp-final-project",
+  "version": "1.0.0",
+  "description": "**Project management and communication platform for the pool construction industry**",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dynamasoft/blockchain-developer-bootcamp-final-project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dynamasoft/blockchain-developer-bootcamp-final-project/issues"
+  },
+  "homepage": "https://github.com/dynamasoft/blockchain-developer-bootcamp-final-project#readme",
+  "dependencies": {
+    "hardhat": "^2.6.6"
+  }
+}
