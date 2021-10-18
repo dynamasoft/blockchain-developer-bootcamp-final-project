@@ -17,6 +17,13 @@
   },
   "homepage": "https://github.com/dynamasoft/blockchain-developer-bootcamp-final-project#readme",
   "dependencies": {
-    "hardhat": "^2.6.6"
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "chai": "^4.3.4",
+    "ethers": "^5.4.7",
+    "hardhat": "^2.6.6",
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "ethereum-waffle": "^3.2.0"
+  },
+  "devDependencies": {   
   }
 }

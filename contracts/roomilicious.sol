@@ -3,7 +3,8 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 
-contract Greeter {
+contract roomilicious {
+   
     string private greeting;
 
     constructor(string memory _greeting) {
@@ -11,12 +12,41 @@ contract Greeter {
         greeting = _greeting;
     }
 
-    function greet() public view returns (string memory) {
-        return greeting;
+    function listRoom() public payable returns (bool)
+    {
+        return true;
     }
 
-    function setGreeting(string memory _greeting) public {
-        console.log("Changing greeting from '%s' to '%s'", greeting, _greeting);
-        greeting = _greeting;
+
+    function postProfile() public payable returns (bool)
+    {
+        return true;
     }
+
+
+    function submitDeposit() public payable returns (bool)
+    {
+        return true;
+    }
+
+    function refundDeposit() public returns (bool)
+    {
+        return true;
+    }
+
+    function fetchTenantQualification(address account) public 
+    {
+        return;
+    }
+
+    function submitTenantQualification(address account)  public  returns (bool)
+    {
+        return true;
+    }
+
+    function moveIn(address account)  public returns (bool)
+    {
+        return true;
+    }
+
 }
