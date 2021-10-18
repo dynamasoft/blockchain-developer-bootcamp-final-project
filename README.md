@@ -2,11 +2,11 @@
 
 Introduction
 
-Roomilicious mission is a secure house sharing platform marketplace. This platform helps the landlord market the property and tenants to share the living cost and to find a compatible roommates. It gives the everyone a peace of mind in the rental process by ensuring that the deposit paid is safe and secure in the escrow account powered by blockchain technology.
+Roomilicious is a secure house sharing platform marketplace. This platform helps the landlord market the property and tenants to find and share the living cost with compatible housemates. It gives the everyone a peace of mind in the rental process by ensuring that the deposit paid is safe and secure in the escrow account powered by blockchain technology.
 
 Problem Statement
 
-Renting process is a very complex ranging from finding the right housing, application process, payments and expecially finding a compatibility with people you will be  living with.  On the top of this, there are many scammers who acted as a landlord to list a fake profile and property to steal the applicant deposit. There are a huge lack of trust in this process begging for a better solution to ease the mind of both landlord and tenants.
+Rental process is a very complex process ranging from the house search, application process, payments and house mates compatibility.  On the top of this, there are many scammers who acted as a landlord to list fake profile and property to steal the applicant deposit. There are a huge lack of trust in this process begging for a better solution to ease the mind of both involved parties.
 
 Solution
 
