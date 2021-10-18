@@ -1,12 +1,12 @@
-## Airbnb 
+## Roomilicious
 
 Introduction
 
-Roomilicious mission is a secure house sharing platform marketplace. This platform helps the landlord market the property and tenants to share the living cost and to find a compatible roommates. It gives the everyone a peace of mind in the rental process by ensuring that the deposit paid is safe and secure in the escrow account powered by blockchain technology.
+Roomilicious is a secure house sharing platform marketplace. This platform helps the landlord market the property and tenants to find and share the living cost with compatible housemates. It gives the everyone a peace of mind in the rental process by ensuring that the deposit paid is safe and secure in the escrow account powered by blockchain technology.
 
 Problem Statement
 
-Renting process is a very complex ranging from finding the right housing, application process, payments and expecially finding a compatibility with people you will be  living with.  On the top of this, there are many scammers who acted as a landlord to list a fake profile and property to steal the applicant deposit. There are a huge lack of trust in this process begging for a better solution to ease the mind of both landlord and tenants.
+Rental process is a very complex process ranging from the house search, application process, payments and house mates compatibility.  On the top of this, there are many scammers who acted as a landlord to list fake profile and property to steal the applicant deposit. There are a huge lack of trust in this process begging for a better solution to ease the mind of both involved parties.
 
 Solution
 
@@ -22,40 +22,4 @@ Scope of Project.
 6. If there more than 1 existing housemate, it will go through a multi party concensus.
 7. If rejected, the deposit will be transfered back to the tenant, other wise the tenant is good to go to move in. 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Basic Sample Hardhat Project
-
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
-```
-
-
-
+![image](https://user-images.githubusercontent.com/11653682/137765650-96b574b0-1665-4d3f-981b-e9cc1a06717f.png)
