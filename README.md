@@ -1,4 +1,4 @@
-## Airbnb 
+## Roomilicious
 
 Introduction
 
@@ -23,21 +23,3 @@ Scope of Project.
 7. If rejected, the deposit will be transfered back to the tenant, other wise the tenant is good to go to move in. 
 
 ![image](https://user-images.githubusercontent.com/11653682/137765650-96b574b0-1665-4d3f-981b-e9cc1a06717f.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
