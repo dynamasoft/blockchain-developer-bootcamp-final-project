@@ -12,7 +12,7 @@ Solution
 
 Roomilicious is a room sharing marketplace that leverages smart contract to keep the privacy of both tenant and landlord and at the same time ensuring the integrity of the rental process process. Roomilicous uses a multiparty concensus for the housemates compatibility. The deposit is stored in the smart contract and 100% guarantee to be returned when the applicant be rejected.
 
-Scope of Project.
+Scope of Project.TEST
 
 1. Landlord lists a property for rent. 
 2. Applicant applies to the property with application fee.
@@ -33,7 +33,12 @@ Project Directory Structure
    3. npx hardhat test
 
 2. client
-   this project is using react js as front end.
+   this project is using react js as front end. To run locally please follow the steps below:
    1. Go to smart client folder from the terminal
    2. npm install
    3. npm start
+
+   This project had also deployed to https://dynamasoft.github.io
+
+
+3. server
