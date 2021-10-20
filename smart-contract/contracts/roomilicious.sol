@@ -3,20 +3,23 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /// @title Roomilicious - Housing sharing market for finding a perfect roommates
 /// @author Smith Tanny
 /// @notice This contract manages the rental application and payment from both landlord and housemate. It also manage the approval of the applicant through a multi sig consensus.
 /// @dev All function calls are currently implemented without side effects
-contract Roomilicious is Ownable {
+contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
 
 
     /******************************************************************
         STATE VARIABLES DECLARATION
     ******************************************************************/
 
-    uint256 constant LISTING_FEE = 1 ether;
-    uint256 constant APPLICATION_FEE = 1 ether;    
+    uint constant LISTING_FEE = 1 ether;
+    uint constant APPLICATION_FEE = 1 ether;    
     
     enum PropertyStatus {
         Pending,
@@ -32,11 +35,11 @@ contract Roomilicious is Ownable {
     }
 
     struct Property {
-        uint256 ID;
+        uint ID;
         string Address;
         address Owner;
         uint TotalHousemates;        
-        uint256 MonthlyRent;
+        uint MonthlyRent;
         ListingStatus Status;
     }  
 
@@ -46,37 +49,39 @@ contract Roomilicious is Ownable {
         MinQualificationApproved,
         MinQualificationRejected,
         Approved,
+        DepositPaid,
         Decline,
         MoveIn
     }
 
     Property[] private PropertyList;
-    mapping(uint256 => bool) private propertyIDs;
+    mapping(uint => bool) private propertyIDs;
 
     struct Application {
-        uint256 ID;
-        uint256 PropertyID;
+        uint ID;
+        uint PropertyID;
         address Applicant;
         RentalStatus Status;
-        uint256 MonthlyIncome;
-        uint256 MonthlyRent;
-        uint256 CreditScore;
+        uint MonthlyIncome;
+        uint MonthlyRent;
+        uint CreditScore;
+        uint Deposit;
         // bool IsDepositPaid;
         // bool IsDepositReturned;
         // bool MeetMinQualification;
         // bool RequireMultiConsensus;
         // bool IsApproved;
-        // uint256 ApplicationTimeStamp;
-        // uint256 MoveInTimeStamp;
+        // uint ApplicationTimeStamp;
+        // uint MoveInTimeStamp;
     }
     Application[] private ApplicationList;
-    mapping(uint256 => bool) private ApplicationIDs;
+    mapping(uint => bool) private ApplicationIDs;
 
     /******************************************************************
         MODIFIER
     ******************************************************************/
      /// @notice this modifier checks to make sure the property exists
-    modifier requireValidProperty(uint256 propertyID) {
+    modifier requireValidProperty(uint propertyID) {
         require(propertyIDs[propertyID], "property does not exist");
         _;
     }
@@ -95,9 +100,13 @@ contract Roomilicious is Ownable {
         );
         _;
     }
+    modifier requireDeposit(uint propertyID) {
+        require(msg.value == PropertyList[propertyID].MonthlyRent,"Deposit amount is incorrect");
+        _;
+    }
 
     /// @notice this modifier checks to make sure only property owner can perform this action
-    modifier requirePropertyOwner(uint256 propertyID) {
+    modifier requirePropertyOwner(uint propertyID) {
         require(
             msg.sender == PropertyList[propertyID].Owner,
             "Must be the property owner to perform this action"
@@ -112,21 +121,30 @@ contract Roomilicious is Ownable {
         _;
     }
 
+    /// @notice this modifier checks to make sure deposit has been paid
+    // modifier requireDepositPaid (uint applicationID) 
+    // {
+    //     require(Application[applicationID].DepositPaid > 0,"no deposit has been paid"); 
+    //     _;
+    // }
+    
+
 /******************************************************************
                     EVENTS
 ******************************************************************/
     event LogDeposit(address sender);
-    event LogForListing(uint256 sku);
-    event LogForApplicationReceived(uint256 sku);
-    event LogForVerification(uint256 sku);
-    event LogForApply(uint256 applicantID);
+    event LogForListing(uint sku);
+    event LogForApplicationReceived(uint sku);
+    event LogForVerification(uint sku);
+    event LogForApply(uint applicantID);
     event PropertyApproveEvent(uint PropertyID);
     event PropertyRejectEvent(uint PropertyID);
-    event DeclineApplicantEvent(uint256 applicationID);    
+    event DeclineApplicantEvent(uint applicationID);    
     event StartRentalProcessEvent(address applicant);
-    event MoveInEvent(uint256 applicationID);
-    event TenantApprovedEvent(uint256 applicationID);
-    event ApplicationCreatedEvent(uint256 applicationID);
+    event MoveInEvent(uint applicationID);
+    event TenantApprovedEvent(uint applicationID);
+    event ApplicationCreatedEvent(uint applicationID);
+    event RefundDepositEvent(uint applicationID, uint deposit);        
 
     /******************************************************************
         MAIN CODE
@@ -142,11 +160,11 @@ contract Roomilicious is Ownable {
         public
         payable
         requireListingFee
-        returns (uint256 propertyID)
+        returns (uint propertyID)
     {
         payable(this).transfer(msg.value);
 
-        uint256 propertyID = PropertyList.length + 1;
+        uint propertyID = PropertyList.length + 1;
 
         PropertyList.push(
             Property({
@@ -190,15 +208,15 @@ contract Roomilicious is Ownable {
     }
 
     /// @notice Allow housemates to apply to a property    
-    function applyToProperty(uint256 propertyID, uint256 monthlyIncome)
+    function applyToProperty(uint propertyID, uint monthlyIncome)
         public
         payable
         requireValidProperty(propertyID)
         requireApplicationFee
-        returns (uint256 applicationID)
+        returns (uint applicationID)
     {
-        uint256 applicationID = ApplicationList.length + 1;
-        uint256 monthlyRent = PropertyList[propertyID].MonthlyRent;
+        uint applicationID = ApplicationList.length + 1;
+        uint monthlyRent = PropertyList[propertyID].MonthlyRent;
 
         ApplicationList.push(
             Application({
@@ -208,7 +226,8 @@ contract Roomilicious is Ownable {
                 MonthlyRent: monthlyRent,
                 MonthlyIncome: monthlyIncome, //this will be filled up by oracles.
                 Status: RentalStatus.ApplicationCreated,
-                CreditScore: 0
+                CreditScore: 0,
+                Deposit:0
             })
         );
 
@@ -217,70 +236,79 @@ contract Roomilicious is Ownable {
     }
 
     /// @notice decline applicant for any reason.
-    function declineApplicant(uint256 applicationID)
-    requirePropertyOwner(PropertyList[ApplicationList[applicationID]].PropertyID)    
+    function declineApplicant(uint applicationID)
+    requirePropertyOwner(PropertyList[ApplicationList[applicationID].PropertyID].ID)    
     public {
         ApplicationList[applicationID].Status = RentalStatus.Decline;
         emit DeclineApplicantEvent(applicationID);
     }
 
     /// @notice interested in renting to applicant, so moving forward with the tenants background check
-    function startRentalProcess(uint256 applicationID) 
-    requirePropertyOwner(PropertyList[ApplicationList[applicationID]].PropertyID)    
+    function startRentalProcess(uint applicationID) 
+    requirePropertyOwner(PropertyList[ApplicationList[applicationID].PropertyID].ID)    
     public {
         ApplicationList[applicationID].Status = RentalStatus.StartRentalProcess;
         emit StartRentalProcessEvent(ApplicationList[applicationID].Applicant);
     }
 
-    //applicant can submit deposit to secure the place
-    function submitDeposit() public payable returns (bool) {
-        return true;
+     /// @notice applicant can submit deposit to secure the place
+    function submitDeposit(uint applicationID) 
+    public 
+    whenNotPaused
+    //requireDeposit(Application[applicationID].PropertyID)
+    nonReentrant
+    payable 
+    {
+        ApplicationList[applicationID].Status = RentalStatus.DepositPaid;
+        ApplicationList[applicationID].Deposit = msg.value;
+        payable(this).transfer(msg.value);   
     }
 
-    //applicant can get the refund should the process is rejected
-    function refundDeposit() public returns (bool) {
-        return true;
+     /// @notice applicant can get the refund should the process is rejected . This utilize the Re-entrency guard pattern.
+    function refundDeposit(uint applicationID) 
+    //requireDepositPaid(applicationID) 
+    whenNotPaused 
+    nonReentrant
+    public         
+    {
+        uint deposit = Application[applicationID].Deposit;
+        Application[applicationID].Deposit = 0;        
+        Application[applicationID].Status = RentalStatus.Refunded;
+        Application[applicationID].Applicant.transfer(msg.value);        
+        RefundDepositEvent(applicationID, deposit);        
     }
 
-    //oracles send the creditscore and income verification
-    function submitTenantResearch(uint256 applicationID, uint256 creditScore)
+    /// @notice oracles send the creditscore and income verification
+    function submitTenantResearch(uint applicationID, uint creditScore)
         public
         returns (bool)
     {
         ApplicationList[applicationID].CreditScore = creditScore;
-        if (isQualified(applicationID) == true) {
+        if (isQualified(applicationID) == true) 
+        {
             //go to multi concensus here.
         }
         return true;
     }
 
-    function isQualified(uint256 applicationID) private returns (bool) {
+    /// @notice Is the tenant qualified for rental
+    function isQualified(uint applicationID) private returns (bool) 
+    {
         ApplicationList[applicationID].Status = RentalStatus
             .MinQualificationApproved;
         emit TenantApprovedEvent(applicationID);
         return true;
     }
 
-    //tenant move in, set the status to move in.
-    function moveIn(uint256 applicationID) public {
+    /// @notice Tenant is ready to move in 
+    function moveIn(uint applicationID,  uint timestamp) public {
         ApplicationList[applicationID].Status = RentalStatus.MoveIn;
         emit MoveInEvent(applicationID);
     }
 
+    /// @notice fallback function 
     fallback() external payable {
         require(msg.data.length == 0);
         emit LogDeposit(msg.sender);
     }
 }
-
-// Property [] memory properties = new Property[](PropertyListingKeys.length);
-
-// console.log("there are '%s' currently listed", PropertyListingKeys.length);
-
-// for(uint i=1; i< PropertyListingKeys.length;i++)
-// {
-//     Property memory item = PropertyList[i];
-//     properties[i] = item;
-// }
-
-// return properties;

@@ -54,6 +54,4 @@ answers:
 
 3. 2 design patterns used here are:
    1. Access Control using inheriting Ownable class
-   2. Pausable
-   3. Oracles to process the tenant income and credit score.
-
+   2. 
