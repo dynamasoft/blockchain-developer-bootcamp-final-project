@@ -23,3 +23,17 @@ Scope of Project.
 7. If rejected, the deposit will be transfered back to the tenant, other wise the tenant is good to go to move in. 
 
 ![image](https://user-images.githubusercontent.com/11653682/137765650-96b574b0-1665-4d3f-981b-e9cc1a06717f.png)
+
+Project Directory Structure
+1. smart-contract
+   this project is using hardhat, waffle and chai in my ethereum test framework.  This folder contains files and subfolders to write smart contract and for testing.
+   Please following steps to run the test 
+   1. Go to smart contract folder from the terminal
+   2. npm install
+   3. npx hardhat test
+
+2. client
+   this project is using react js as front end.
+   1. Go to smart client folder from the terminal
+   2. npm install
+   3. npm start

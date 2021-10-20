@@ -21,19 +21,20 @@ uint256 constant APPLICATION_FEE = 1 ether;
     struct Property
     {
         uint ID;
-        string Address;                
+        string Address;     
+        address Owner;           
         // uint TotalHousematesCount;
         // uint AvailableBedroom;        
          uint MonthlyRent;
     }
     
     enum RentalStatus {        
-        Applied,
-        Verification,
+        ApplicationCreated,
+        StartRentalProcess,
         MinQualificationApproved,
         MinQualificationRejected,
         Approved,
-        Rejected,
+        Decline,
         MoveIn
     }
 
@@ -47,8 +48,9 @@ uint256 constant APPLICATION_FEE = 1 ether;
         uint PropertyID; 
         address Applicant;
         RentalStatus Status;
-        uint Income;
-        uint Rent;       
+        uint MonthlyIncome;
+        uint MonthlyRent;       
+        uint CreditScore;
         // bool IsDepositPaid;
         // bool IsDepositReturned;
         // bool MeetMinQualification;
@@ -93,6 +95,12 @@ modifier requireApplicationFee()
     _;
 }
 
+modifier requirePropertyOwner(uint propertyID)
+{
+     require(msg.sender == PropertyList[propertyID].Owner, "Must be the property owner to reject applicant");
+    _;
+}
+
 /******************************************************************
 EVENT
 ******************************************************************/
@@ -100,8 +108,12 @@ EVENT
  event LogForApplicationReceived(uint sku);
  event LogForVerification(uint sku);
  event LogForApply(uint applicantID);
- event initateTenantResearch(address account, uint monthlyRent);
- 
+ event DeclineApplicantEvent(uint applicationID);
+ //event InitateTenantResearchEvent(address account, uint monthlyRent);
+ event StartRentalProcessEvent(address applicant);
+ event MoveInEvent(uint applicationID);
+ event TenantApprovedEvent(uint applicationID);
+ event ApplicationCreatedEvent(uint applicationID);
  
  /******************************************************************
 MAIN CODE
@@ -123,7 +135,8 @@ MAIN CODE
 
         PropertyList.push(Property({
             ID: propertyID,
-            Address: propertyAddress,            
+            Address: propertyAddress, 
+            Owner: msg.sender,           
             MonthlyRent:rent
         }));
         
@@ -138,7 +151,7 @@ MAIN CODE
       
     }
 
-    function applyToProperty(uint propertyID)
+    function applyToProperty(uint propertyID, uint monthlyIncome)
     requireValidProperty(propertyID)
     requireApplicationFee
     payable
@@ -152,15 +165,27 @@ MAIN CODE
             PropertyID: propertyID,
             Applicant: msg.sender,
             MonthlyRent: monthlyRent,
-            Income:0, //this will be filled up by oracles.            
-            Status: RentalStatus.Applied
+            MonthlyIncome:monthlyIncome, //this will be filled up by oracles.            
+            Status: RentalStatus.ApplicationCreated,
+            CreditScore:0
         }));
         
-        ApplicationIDs[applicationID] = true;        
-        emit initateTenantResearch(msg.sender, monthlyRent);
-        return applicationID;
+        ApplicationIDs[applicationID] = true;   
+        //console.log("from contract applicationID %s", applicationID);
+        emit ApplicationCreatedEvent(applicationID);
     }
-    
+
+    function declineApplicant(uint applicationID) public
+    {        
+        ApplicationList[applicationID].Status = RentalStatus.Decline;
+        emit DeclineApplicantEvent(applicationID);
+    }
+
+    function startRentalProcess(uint applicationID) public 
+    {
+        ApplicationList[applicationID].Status = RentalStatus.StartRentalProcess;
+        emit StartRentalProcessEvent(ApplicationList[applicationID].Applicant);
+    }    
 
     //applicant can submit deposit to secure the place
     function submitDeposit() public payable returns (bool) {
@@ -176,28 +201,28 @@ MAIN CODE
     function submitTenantResearch(uint applicationID, uint creditScore) public returns (bool) 
     {
         ApplicationList[applicationID].CreditScore = creditScore;
-        if(isQualified(applicationID))
+        if(isQualified(applicationID) == true)
         {
             //go to multi concensus here.
         }
         return true;
     }
 
-    function isQualified(uint applicationID)
+    function isQualified(uint applicationID) 
+    private    
+    returns(bool)
     {        
         ApplicationList[applicationID].Status = RentalStatus.MinQualificationApproved;
-
-        emit tenantApproved("wohoo");
-    }
-
-    //tenant move in, set the status to move in.
-    function moveIn(uint applicatinID) public returns (bool) 
-    {     
-        ApplicationList[applicationID].Status = RentalStatus.moveIn;
+        emit TenantApprovedEvent(applicationID);
         return true;
     }
 
-
+    //tenant move in, set the status to move in.
+    function moveIn(uint applicationID) public
+    {     
+        ApplicationList[applicationID].Status = RentalStatus.MoveIn;
+        emit MoveInEvent(applicationID);        
+    }
 
 
     fallback() external payable {}
