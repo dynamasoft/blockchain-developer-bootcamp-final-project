@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
+pragma solidity 0.8.4;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -18,8 +18,8 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
         STATE VARIABLES DECLARATION
     ******************************************************************/
 
-    uint constant LISTING_FEE = 1 ether;
-    uint constant APPLICATION_FEE = 1 ether;    
+    uint constant LISTING_FEE = 1 wei;
+    uint constant APPLICATION_FEE = 1 wei;    
     
     enum PropertyStatus {
         Pending,
@@ -55,8 +55,8 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
         MoveIn
     }
 
-    Property[] private PropertyList;
-    mapping(uint => bool) private propertyIDs;
+    mapping(uint => Property) private PropertyList;
+    uint [] private PropertyIDs;
 
     struct Application {
         uint ID;
@@ -83,7 +83,8 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     ******************************************************************/
      /// @notice this modifier checks to make sure the property exists
     modifier requireValidProperty(uint propertyID) {
-        require(propertyIDs[propertyID], "property does not exist");
+        //check if the object is null
+        require(PropertyList[propertyID].Owner != address(0), "property does not exist");
         _;
     }
 
@@ -95,11 +96,8 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     }
 
     /// @notice this modifier checks to make sure only property owner can perform this action
-    modifier requirePropertyOwner(uint propertyID) {
-        require(
-            msg.sender == PropertyList[propertyID].Owner,
-            "Must be the property owner to perform this action"
-        );
+    modifier requirePropertyOwner(uint propertyID) {        
+        require(msg.sender == PropertyList[propertyID].Owner, "Must be the property owner to perform this action");
         _;
     }
 
@@ -133,6 +131,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     event MoveInEvent(uint applicationID);
     event TenantApprovedEvent(uint applicationID);
     event ApplicationCreatedEvent(uint applicationID);
+    event DepositPaidEvent(uint applicationID);
     event RefundDepositEvent(uint applicationID, uint deposit);           
 
     /******************************************************************
@@ -150,12 +149,11 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
         payable        
         requireValidFund(LISTING_FEE)
         returns (uint propertyID)
-    {
+    {        
         payable(this).transfer(msg.value);
 
-        uint propertyID = PropertyList.length + 1;
-
-        PropertyList.push(
+        uint propertyID = PropertyIDs.length + 1;     
+        PropertyList[propertyID] = 
             Property({
                 ID: propertyID,
                 Address: propertyAddress,
@@ -163,10 +161,9 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
                 MonthlyRent: rent,
                 TotalHousemates : totalHousemates,
                 Status: ListingStatus.Pending
-            })
-        );
-
-        propertyIDs[propertyID] = true;
+            });        
+        
+        PropertyIDs.push(propertyID);
         return propertyID;
     }
 
@@ -192,8 +189,17 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     }
 
     /// @notice Get all the listed properties
-    function getAllProperties() public view returns (Property[] memory) {
-        return PropertyList;
+    function getAllProperties() public view returns (Property[] memory) 
+    {    
+        Property [] memory properties = new Property[](PropertyIDs.length);        
+
+         for(uint i=0; i< PropertyIDs.length;i++)
+         {
+            uint propertyID = PropertyIDs[i];            
+            properties[i] = PropertyList[propertyID];            
+         }
+
+        return properties; 
     }
 
     /// @notice Allow housemates to apply to a property    
@@ -226,7 +232,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
 
     /// @notice decline applicant for any reason.
     function declineApplicant(uint applicationID)
-    requirePropertyOwner(PropertyList[ApplicationList[applicationID].PropertyID].ID)    
+    requirePropertyOwner(ApplicationList[applicationID].PropertyID)    
     public {
         ApplicationList[applicationID].Status = RentalStatus.Decline;
         emit DeclineApplicantEvent(applicationID);
@@ -241,7 +247,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     }
 
      /// @notice applicant can submit deposit to secure the place
-    function submitDeposit(uint applicationID) 
+    function payDeposit(uint applicationID) 
     public 
     whenNotPaused
     requireValidFund(PropertyList[ApplicationList[applicationID].PropertyID].MonthlyRent)
@@ -251,19 +257,42 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
         ApplicationList[applicationID].Status = RentalStatus.DepositPaid;
         ApplicationList[applicationID].Deposit = msg.value;
         payable(this).transfer(msg.value);   
+        emit DepositPaidEvent(applicationID);
     }
 
      /// @notice applicant can get the refund should the process is rejected . This utilize the Re-entrency guard pattern.
     function refundDeposit(uint applicationID) 
     requireDepositPaid(applicationID) 
     whenNotPaused 
+    onlyOwner
     nonReentrant
     payable
     public         
     {
+        //effect
         uint deposit = ApplicationList[applicationID].Deposit;
-        ApplicationList[applicationID].Deposit = 0;        
+        ApplicationList[applicationID].Deposit = 0;     
         ApplicationList[applicationID].Status = RentalStatus.Refunded;
+
+        //interaction
+        payable(ApplicationList[applicationID].Applicant).transfer(msg.value);        
+        emit RefundDepositEvent(applicationID, deposit);        
+    }
+
+    /// @notice in case of an attack, only owner can refund the deposit.
+    function withdrawDeposityByOwner(uint applicationID) 
+    requireDepositPaid(applicationID) 
+    nonReentrant
+    onlyOwner
+    payable
+    public         
+    {
+        //effect
+        uint deposit = ApplicationList[applicationID].Deposit;
+        ApplicationList[applicationID].Deposit = 0;     
+        ApplicationList[applicationID].Status = RentalStatus.Refunded;
+
+        //interaction
         payable(ApplicationList[applicationID].Applicant).transfer(msg.value);        
         emit RefundDepositEvent(applicationID, deposit);        
     }
@@ -301,11 +330,4 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
         require(msg.data.length == 0);
         emit LogDeposit(msg.sender);
     }
-
-
-
-
-
-
-
 }

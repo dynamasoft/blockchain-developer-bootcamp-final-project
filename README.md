@@ -57,3 +57,23 @@ answers:
    2. Pausable
    3. Oracles to process the tenant income and credit score.
 
+4. 3 security measures have been implemented in this contract
+   1. Using specific compiler pragma 
+   2. Using reentrancy guard
+   3. Using modifier for validation
+   4. Using pausable contract
+
+5. 15 unit testing was done.
+
+6. Deploy Contract Address:
+
+7. DAPP.
+
+8. https://dynamasoft.github.io/blockchain-developer-bootcamp-final-project/
+
+9. Readme file is included
+
+10. Screencast. 
+
+
+

@@ -1,8 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-const LISTING_FEE = ethers.utils.parseUnits("1.0", "ether");
-const APPLICATION_FEE = ethers.utils.parseUnits("1.0", "ether");
+const LISTING_FEE = ethers.utils.parseUnits("1", "wei");
+const APPLICATION_FEE = ethers.utils.parseUnits("1", "wei");
+const DEPOSIT =  ethers.utils.parseUnits("1250", "wei"); 
+const MONTHLY_RENT =  ethers.utils.parseUnits("1250", "wei"); 
+const TOTAL_HOUSE_MATE = 1;
+
 
 describe("Landlord testing", function () {
   let instance;
@@ -11,7 +15,6 @@ describe("Landlord testing", function () {
   let applicants = [];
   let propertyID;
   let applicationID=1;
-  let monthlyRent = 1250;
   let monthlyIncome = 3000;
 
   before("setup contract", async () => {
@@ -51,9 +54,10 @@ describe("Landlord testing", function () {
     // }
   });
 
+
   it("Landlord - list property", async function () {
-     await instance.connect(propertyOwners[0]).listProperty("1234 main street", monthlyRent, { value: LISTING_FEE });
-     await instance.connect(propertyOwners[1]).listProperty("5564 main street", monthlyRent, { value: LISTING_FEE });
+     await instance.connect(propertyOwners[0]).listProperty("1234 main street", MONTHLY_RENT, TOTAL_HOUSE_MATE, { value: LISTING_FEE });
+     await instance.connect(propertyOwners[1]).listProperty("5564 main street", MONTHLY_RENT, TOTAL_HOUSE_MATE, { value: LISTING_FEE });
      var properties = await instance.getAllProperties();
      expect(properties.length).to.equal(2);
   });
@@ -63,15 +67,17 @@ describe("Landlord testing", function () {
       await expect(instance.connect(applicants[0]).applyToProperty(invalidPropertyID, monthlyIncome, { value: APPLICATION_FEE })).to.be.reverted;
   });
 
-  it("Housemate - apply to rental", async function () {
+  it("Housemate - apply to a valid rental", async function () {
     debugger;    
     var properties = await instance.getAllProperties();
+    console.log("properties : " + properties);
     propertyID = properties[0].ID    
     await expect(instance.connect(applicants[0]).applyToProperty(propertyID, monthlyIncome, { value: APPLICATION_FEE }))
     .to.emit(instance, 'ApplicationCreatedEvent').withArgs(applicationID);  
   });
 
   it("Landlord - decline applicant test event", async function () {       
+    console.log("property id : " + propertyID);
     await instance.connect(applicants[0]).applyToProperty(propertyID, monthlyIncome, { value: APPLICATION_FEE });    
     await expect(instance.connect(propertyOwners[0]).declineApplicant(applicationID))
     .to.emit(instance, 'DeclineApplicantEvent').withArgs(applicationID);      
@@ -92,6 +98,26 @@ describe("Landlord testing", function () {
     //await new Promise(resolve => setTimeout(resolve, 10000))
     await expect(instance.connect(propertyOwners[0]).startRentalProcess(applicationID)); 
   });
+
+  it("Housemate - pay deposit", async function () {
+    debugger;        
+    await expect(instance.connect(applicants[0]).payDeposit(applicationID, { value: DEPOSIT }))
+    .to.emit(instance, 'DepositPaidEvent').withArgs(applicationID);  
+  });
+
+  it("Housemate - get refund for deposit", async function () {
+    debugger;        
+    await expect(instance.connect(applicants[0]).payDeposit(applicationID, { value: DEPOSIT }))
+    .to.emit(instance, 'DepositPaidEvent').withArgs(applicationID);  
+  });
+
+
+
+
+
+
+
+
 
 
 
