@@ -124,13 +124,16 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     event LogForApplicationReceived(uint sku);
     event LogForVerification(uint sku);
     event LogForApply(uint applicantID);
+    event PropertyListedEvent(uint PropertyID);
     event PropertyApproveEvent(uint PropertyID);
     event PropertyRejectEvent(uint PropertyID);
     event DeclineApplicantEvent(uint applicationID);    
-    event StartRentalProcessEvent(address applicant);
+    event StartRentalProcessEvent(uint applicationID);
     event MoveInEvent(uint applicationID);
     event TenantApprovedEvent(uint applicationID);
     event ApplicationCreatedEvent(uint applicationID);
+    event ApplicationApprovedEvent(uint applicationID);
+    event ApplicationRejectedEvent(uint applicationID);
     event DepositPaidEvent(uint applicationID);
     event RefundDepositEvent(uint applicationID, uint deposit);           
 
@@ -164,6 +167,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
             });        
         
         PropertyIDs.push(propertyID);
+        //emit PropertyListedEvent(propertyID);
         return propertyID;
     }
 
@@ -243,7 +247,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     requirePropertyOwner(PropertyList[ApplicationList[applicationID].PropertyID].ID)    
     public {
         ApplicationList[applicationID].Status = RentalStatus.StartRentalProcess;
-        emit StartRentalProcessEvent(ApplicationList[applicationID].Applicant);
+        emit StartRentalProcessEvent(applicationID);
     }
 
      /// @notice applicant can submit deposit to secure the place
@@ -263,8 +267,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
      /// @notice applicant can get the refund should the process is rejected . This utilize the Re-entrency guard pattern.
     function refundDeposit(uint applicationID) 
     requireDepositPaid(applicationID) 
-    whenNotPaused 
-    onlyOwner
+    whenNotPaused     
     nonReentrant
     payable
     public         
@@ -298,26 +301,22 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     }
 
     /// @notice oracles send the creditscore and income verification
-    function submitTenantResearch(uint applicationID, uint creditScore)
+    function submitTenantResearch(uint applicationID, bool passed)
         public
         returns (bool)
     {
-        ApplicationList[applicationID].CreditScore = creditScore;
-        if (isQualified(applicationID) == true) 
+        if(passed)
         {
-            //go to multi concensus here.
+            ApplicationList[applicationID].Status = RentalStatus.MinQualificationApproved;
+            emit ApplicationApprovedEvent(applicationID);
         }
+        else
+        {
+            ApplicationList[applicationID].Status = RentalStatus.MinQualificationRejected;
+            emit ApplicationRejectedEvent(applicationID);
+        }        
         return true;
-    }
-
-    /// @notice Is the tenant qualified for rental
-    function isQualified(uint applicationID) private returns (bool) 
-    {
-        ApplicationList[applicationID].Status = RentalStatus
-            .MinQualificationApproved;
-        emit TenantApprovedEvent(applicationID);
-        return true;
-    }
+    }   
 
     /// @notice Tenant is ready to move in 
     function moveIn(uint applicationID,  uint timestamp) public {

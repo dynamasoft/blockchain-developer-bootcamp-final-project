@@ -69,15 +69,13 @@ describe("Landlord testing", function () {
 
   it("Housemate - apply to a valid rental", async function () {
     debugger;    
-    var properties = await instance.getAllProperties();
-    console.log("properties : " + properties);
+    var properties = await instance.getAllProperties();    
     propertyID = properties[0].ID    
     await expect(instance.connect(applicants[0]).applyToProperty(propertyID, monthlyIncome, { value: APPLICATION_FEE }))
     .to.emit(instance, 'ApplicationCreatedEvent').withArgs(applicationID);  
   });
 
-  it("Landlord - decline applicant test event", async function () {       
-    console.log("property id : " + propertyID);
+  it("Landlord - decline applicant test event", async function () {           
     await instance.connect(applicants[0]).applyToProperty(propertyID, monthlyIncome, { value: APPLICATION_FEE });    
     await expect(instance.connect(propertyOwners[0]).declineApplicant(applicationID))
     .to.emit(instance, 'DeclineApplicantEvent').withArgs(applicationID);      

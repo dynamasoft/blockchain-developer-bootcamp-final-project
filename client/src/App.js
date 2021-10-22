@@ -1,61 +1,115 @@
-import logo from './logo.svg';
-import './App.css';
-import { useState } from 'react'
-import { ethers } from 'ethers'
-import Greeter from './artifacts/contracts/Greeter.sol/Greeter.json'
-
-const greeterAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+import React, { useState, useEffect } from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import { Button, Container, AppBar, Typography, Grow, Grid } from "@material-ui/core";
+import { ethers } from "ethers";
+import Greeter from "./artifacts/contracts/Greeter.sol/Greeter.json";
+import Contract from "./contract"
 
 function App() {
 
-  const [greeting, setGreetingValue] = useState();
+  const [logs, setLogs] = useState([]);
+  const [propertyID, setPropertyID] = useState(0);
+  const [applicationID, setApplicationID] = useState(0);
 
-  async function requestAccount()
-  {
-    await window.ethereum.request({ method: 'eth_requestAccounts' });    
-  }  
-  
-  async function fetchGreeting() 
-  {
-    if (typeof window.ethereum !== 'undefined') {
-      const provider = new ethers.providers.Web3Provider(window.ethereum)
-      const contract = new ethers.Contract(greeterAddress, Greeter.abi, provider)
-      try {
-        const data = await contract.greet()
-        console.log('data: ', data)
-      } catch (err) {
-        console.log("Error: ", err)
-      }
-    }    
+  useEffect(() => {
+    test();
+  },[]);
+
+  function displayMessage(msg) {    
+    setLogs((logs) => [...logs, msg]);
   }
 
-  // call the smart contract, send an update
-  async function setGreeting() {
-    if (!greeting) 
-      return
-
-    if (typeof window.ethereum !== 'undefined') {
-      await requestAccount()
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      debugger;
-      const signer = provider.getSigner()
-
-      const contract = new ethers.Contract(greeterAddress, Greeter.abi, signer)
-      const transaction = await contract.setGreeting(greeting)
-      await transaction.wait()
-      fetchGreeting()
-    }
+  async function test()
+  {    
+    var contract = new Contract();
+    displayMessage("Contract instantiated.");
+    await contract.initialize();
+    displayMessage("Contract initialized.");    
+    var propertyID = await contract.listProperty("123 main st", 1500, 2);
+    displayMessage("property listed.");
+    setPropertyID(propertyID);
+    debugger;
+    await contract.approvePropertyListing(propertyID);
+    displayMessage("Approved property listing.");
+    debugger;
+    var applicationID = await contract.applyToRental(propertyID, 1500);
+    displayMessage("Applicant apply to property : " + propertyID + " with applicationid " + applicationID);
+    setApplicationID(applicationID);
+    await contract.declineApplicant(applicationID);
+    displayMessage("Owner declined applicant with applicationID " + applicationID);
+    await contract.startRentalProcess(applicationID, applicationApproved, applicationRejected);  
+    displayMessage("Property owner started the rental process...wait for the result below from oracles");
+    displayMessage("waiting.......its coming....wait......");
   }
+
+  async function applicationApproved(applicationID)
+  {
+    displayMessage("application : " + applicationID + " has been approved.")
+  }
+
+  async function applicationRejected(applicationID)
+  {
+    displayMessage("application : " + applicationID + " has been rejected.")
+  }
+
+  var property1 = require("./images/property_1.jpg").default;
+  var property2 = require("./images/property_2.jpg").default;
+  var property3 = require("./images/property_3.jpg").default;
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button onClick={fetchGreeting}>Fetch Greeting</button>
-        <button onClick={setGreeting}>Set Greeting</button>
-        <input onChange={e => setGreetingValue(e.target.value)} placeholder="Set greeting" />
-      </header>
+    <div className="App">      
+      <main>
+        <Grid container>
+          <Grid item xs={12}>
+            <div align="left">Customer Facing Site</div>
+
+            <Grid container>
+              <Grid item xs>
+                <img
+                  src={property1}
+                  style={{ maxWidth: "300px", maxHeight: "500px" }}
+                />
+                <p align="center">
+                  is simply dummy text of the printing and typesetting industry.
+                  Lorem Ipsum has been the industry's standard dummy text ever
+                  since the 1500s, when an unknown printer took a galley of type
+                  and scrambled it to make a type specimen book. It has survived               
+                </p>
+                <Button color="primary" variant="contained">Apply</Button>
+              </Grid>
+              <Grid item xs>
+                <img src={property2} style={{ maxWidth: "300px", maxHeight: "500px" }}/>
+                <p align="center">
+                  is simply dummy text of the printing and typesetting industry.
+                  Lorem Ipsum has been the industry's standard dummy text ever
+                  since the 1500s, when an unknown printer took a galley of type
+                  and scrambled it to make a type specimen book. It has survived               
+                </p>
+                <Button color="primary" variant="contained">Apply</Button>
+              </Grid>
+              <Grid item xs>
+                <img src={property3} style={{ maxWidth: "300px", maxHeight: "500px" }}/>
+                <p align="center">
+                  is simply dummy text of the printing and typesetting industry.
+                  Lorem Ipsum has been the industry's standard dummy text ever
+                  since the 1500s, when an unknown printer took a galley of type
+                  and scrambled it to make a type specimen book. It has survived               
+                </p>
+                <Button color="primary" variant="contained">Apply</Button>
+              </Grid>
+            </Grid>
+          </Grid>          
+          <Grid item xs={12} style={{marginTop: "100px"}}>            
+        <h2> INTERNAL PROCESS BEHIND THE SCENE</h2>
+          {logs.map((log) => (
+          <div>{log}</div>
+          ))}
+          </Grid>
+        </Grid>       
+      </main>
     </div>
-  );
+  )
 }
 
 export default App;
