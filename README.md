@@ -62,8 +62,7 @@ answers:
 4. 3 security measures have been implemented in this contract
    1. Using specific compiler pragma 
    2. Using reentrancy guard
-   3. Using modifier for validation
-   4. Using pausable contract
+   3. Using modifier for validation   
    more info can be found on the avoiding_common_atack.md
 
 5. 6 unit testing was done. The test is basically around creating a property, approve the applicant, get deposit and refund the deposit.
