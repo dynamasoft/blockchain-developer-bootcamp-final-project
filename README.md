@@ -65,7 +65,8 @@ answers:
 
 5. 15 unit testing was done.
 
-6. Deploy Contract Address:
+6. Deploy Contract Address: 0xE76E14297D76b4B83A675353c789D6a7a662273F
+   https://ropsten.etherscan.io/address/0xE76E14297D76b4B83A675353c789D6a7a662273F
 
 7. DAPP.
 
