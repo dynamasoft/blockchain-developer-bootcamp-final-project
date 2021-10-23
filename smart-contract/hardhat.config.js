@@ -23,10 +23,10 @@ module.exports = {
   solidity: "0.8.4",
   networks: {
     hardhat: {},
-    ropsten: {
-      url: process.env.INFURA_URL,
-      accounts: [process.env.OWNER_ADDRESS]      
-    },
+    // ropsten: {
+    //   url: process.env.INFURA_URL,
+    //   accounts: [process.env.OWNER_ADDRESS]      
+    // },
   },
   paths:{
     artifacts: '../client//src/artifacts'
