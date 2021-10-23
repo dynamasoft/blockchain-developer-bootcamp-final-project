@@ -31,17 +31,17 @@ function App() {
   }
 
   const start = async () => {
-    await contract.initialize(true);
+    await contract.initialize(false);
     displayMessage("Contract initialized.");
 
     var propertyID = await contract.listProperty("123 main st", 1500, 2);
     displayMessage("property listed.");
     setPropertyID(propertyID);
     
-    debugger;
+    
     await contract.approvePropertyListing(propertyID);
     displayMessage("Approved property listing.");
-    debugger;
+    
     var applicationID = await contract.applyToRental(propertyID, 1500);
     displayMessage(
       "Applicant apply to property : " +

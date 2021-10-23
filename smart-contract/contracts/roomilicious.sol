@@ -247,6 +247,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     requirePropertyOwner(PropertyList[ApplicationList[applicationID].PropertyID].ID)    
     public {
         ApplicationList[applicationID].Status = RentalStatus.StartRentalProcess;
+        console.log("calling StartRentalProcessEvent from the contract");
         emit StartRentalProcessEvent(applicationID);
     }
 
