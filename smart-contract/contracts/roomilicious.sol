@@ -175,7 +175,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     /// @notice Approve listing, only contract owner can do it to prevent scammer from listng fake properties
     /// @param propertyID ID of the property
     function approvePropertyListing(uint propertyID)
-    onlyOwner
+    //onlyOwner //disable for testing purposes
     public 
     {
         PropertyList[propertyID].Status = ListingStatus.Approved;
@@ -185,7 +185,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     /// @notice Approve listing, only contract owner can do it to take fake property down
     /// @param propertyID ID of the property
     function rejectedPropertyListing(uint propertyID)
-    onlyOwner
+    //onlyOwner //disable for testing purposes
     public 
     {
         PropertyList[propertyID].Status = ListingStatus.Rejected;

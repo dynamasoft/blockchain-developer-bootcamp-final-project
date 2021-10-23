@@ -21,7 +21,9 @@ function App() {
 
   useEffect(() => {
     setContract(new Contract());
-    displayMessage("Contract instantiated.");
+    displayMessage("Contract instantiated. Be ready to use 3 different account in the metamask, for contract owner, property owner, and applicant.");
+    displayMessage("When you are ready go ahead and click on any apply button above.");
+
   }, []);
 
   function displayMessage(msg) {
@@ -29,11 +31,13 @@ function App() {
   }
 
   const start = async () => {
-    await contract.initialize();
+    await contract.initialize(true);
     displayMessage("Contract initialized.");
+
     var propertyID = await contract.listProperty("123 main st", 1500, 2);
     displayMessage("property listed.");
     setPropertyID(propertyID);
+    
     debugger;
     await contract.approvePropertyListing(propertyID);
     displayMessage("Approved property listing.");
@@ -122,12 +126,7 @@ function App() {
                   Room for Rent in Beautiful & Safe West San Jose'. Room is
                   fully furnished~for one person, only. Looking for one person
                   who is very quiet, clean, neat, responsible & respectful. Home
-                  is Chemical & Scent free & Environmentally healthy &
-                  conscious. Rent is: $, per month with security deposit of
-                  same. $, non refundable cleaning fee is required. Must have
-                  work/personal & previous rental references. Close to tech,
-                  hospitals, shopping & freeways. Walk to Santana Row &
-                  Winchester Mystery House. Park in driveway.
+                  is Chemical & Scent free & Environmentally healthy &               
                 </p>
                 <Button
                   color="primary"
