@@ -66,14 +66,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
         uint MonthlyIncome;
         uint MonthlyRent;
         uint CreditScore;
-        uint Deposit;
-        // bool IsDepositPaid;
-        // bool IsDepositReturned;
-        // bool MeetMinQualification;
-        // bool RequireMultiConsensus;
-        // bool IsApproved;
-        // uint ApplicationTimeStamp;
-        // uint MoveInTimeStamp;
+        uint Deposit;        
     }
     Application[] private ApplicationList;
     mapping(uint => bool) private ApplicationIDs;
@@ -150,6 +143,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     function listProperty(string memory propertyAddress, uint rent, uint totalHousemates)
         public
         payable        
+        whenNotPaused
         requireValidFund(LISTING_FEE)
         returns (uint propertyID)
     {        
@@ -175,6 +169,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     /// @notice Approve listing, only contract owner can do it to prevent scammer from listng fake properties
     /// @param propertyID ID of the property
     function approvePropertyListing(uint propertyID)
+    whenNotPaused
     //onlyOwner //disable for testing purposes
     public 
     {
@@ -186,6 +181,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     /// @param propertyID ID of the property
     function rejectedPropertyListing(uint propertyID)
     //onlyOwner //disable for testing purposes
+    whenNotPaused
     public 
     {
         PropertyList[propertyID].Status = ListingStatus.Rejected;
@@ -210,6 +206,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     function applyToProperty(uint propertyID, uint monthlyIncome)
         public
         payable
+        whenNotPaused
         requireValidProperty(propertyID)
         requireValidFund(APPLICATION_FEE)
         returns (uint applicationID)
@@ -236,6 +233,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
 
     /// @notice decline applicant for any reason.
     function declineApplicant(uint applicationID)
+    whenNotPaused
     requirePropertyOwner(ApplicationList[applicationID].PropertyID)    
     public {
         ApplicationList[applicationID].Status = RentalStatus.Decline;
@@ -244,6 +242,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
 
     /// @notice interested in renting to applicant, so moving forward with the tenants background check
     function startRentalProcess(uint applicationID) 
+    whenNotPaused
     requirePropertyOwner(PropertyList[ApplicationList[applicationID].PropertyID].ID)    
     public {
         ApplicationList[applicationID].Status = RentalStatus.StartRentalProcess;
@@ -303,6 +302,7 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
 
     /// @notice oracles send the creditscore and income verification
     function submitTenantResearch(uint applicationID, bool passed)
+    whenNotPaused
         public
         returns (bool)
     {
@@ -320,7 +320,9 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     }   
 
     /// @notice Tenant is ready to move in 
-    function moveIn(uint applicationID,  uint timestamp) public {
+    function moveIn(uint applicationID,  uint timestamp) 
+    whenNotPaused
+    public {
         ApplicationList[applicationID].Status = RentalStatus.MoveIn;
         emit MoveInEvent(applicationID);
     }

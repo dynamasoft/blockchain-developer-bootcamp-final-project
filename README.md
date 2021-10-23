@@ -2,23 +2,25 @@
 
 Introduction
 
-Roomilicious is a secure house sharing platform marketplace. This platform helps the landlord market the property and tenants to find and share the living cost with compatible housemates. It gives the everyone a peace of mind in the rental process by ensuring that the deposit paid is safe and secure in the escrow account powered by blockchain technology.
+Roomilicious is a secure house sharing platform marketplace. This platform helps the landlord market the property and tenants to find and share the living cost with compatible housemates. It gives everyone a peace of mind in the rental process by ensuring that all party can transact safely powered by blockchain technology.
 
 Problem Statement
 
-Rental process is a very complex process ranging from the house search, application process, payments and house mates compatibility.  On the top of this, there are many scammers who acted as a landlord to list fake profile and property to steal the applicant deposit. There are a huge lack of trust in this process begging for a better solution to ease the mind of both involved parties.
+Rental process is a very complex process ranging from the house search, application process, payments and finding the house mates compatibility.  On the top of this, there are many scammers who posted a fake property in behalf of the landlord to steal the applicant deposit fund. There are a huge lack of trust because of this in this rental process begging for a better solution to ease the mind of both involved parties.
 
 Solution
 
-Roomilicious is a room sharing marketplace that leverages smart contract to keep the privacy of both tenant and landlord and at the same time ensuring the integrity of the rental process process. Roomilicous uses a multiparty concensus for the housemates compatibility. The deposit is stored in the smart contract and 100% guarantee to be returned when the applicant be rejected.
+Roomilicious is a room sharing marketplace that leverages smart contract to keep the privacy of both tenant and landlord and simultaneously ensuring the integrity of the rental process. On the top of this Roomilicous also uses a multiparty concensus for the housemates compatibility. Each existing roommate in the property to up or down vote the new housemate based on their preferences. The deposit is stored in the smart contract and 100% guarantee to be returned when the applicant is rejected.
 
 Scope of Project.TEST
 
 1. Landlord lists a property for rent. 
-2. Applicant applies to the property with application fee.
-3. Roomilicious calls oracles to get credit and income information.
-4. Renting Approval Process. 
+2. Applicant applies to the property with an application fee.
+3. Landlord approves the property.
+4. Roomilicious calls oracles to get credit and income information.
 5. If approved, applicant pays the deposit to secure the place.
+
+OUT OF SCOPE
 6. If there more than 1 existing housemate, it will go through a multi party concensus.
 7. If rejected, the deposit will be transfered back to the tenant, other wise the tenant is good to go to move in. 
 
@@ -26,24 +28,23 @@ Scope of Project.TEST
 
 Project Directory Structure
 1. smart-contract
-   this project is using hardhat, waffle and chai in my ethereum test framework.  This folder contains files and subfolders to write smart contract and for testing.
+   This project uses hardhat, waffle and chai test framework.  This folder contains files and subfolders for write smart contract and testing.
    Please following steps to run the test 
    1. Go to smart contract folder from the terminal
    2. npm install
    3. npx hardhat test
+   4. npx hardhat node (if you want to test the dapp locally)
 
 2. client
-   this project is using react js as front end. To run locally please follow the steps below:
+   this project is using react js as front end and ethers.js to connect to the blockchain. To run locally please follow the steps below:
    1. Go to smart client folder from the terminal
    2. npm install
    3. npm start
 
    This project had also deployed to https://dynamasoft.github.io
 
-
 3. server
-
-
+   This is to run the oracle but currently is out of scope. Oracle is temporarily moved to the front end for the accessbility and testing.
 
 ------------------------------------------------- PROJECT RUBRIK DETAIL ---------------------------------------------------------------
 questions here : https://courses.consensys.net/courses/take/blockchain-developer-bootcamp-registration-2021/assignments/27500647-final-project-submission
@@ -56,25 +57,34 @@ answers:
    1. Access Control using inheriting Ownable class
    2. Pausable
    3. Oracles to process the tenant income and credit score.
+   more info can be found on the design_pattern_decisions.md
 
 4. 3 security measures have been implemented in this contract
    1. Using specific compiler pragma 
    2. Using reentrancy guard
    3. Using modifier for validation
    4. Using pausable contract
+   more info can be found on the avoiding_common_atack.md
 
-5. 15 unit testing was done.
+5. 6 unit testing was done. The test is basically around creating a property, approve the applicant, get deposit and refund the deposit.
 
-6. Deploy Contract Address: 0xE76E14297D76b4B83A675353c789D6a7a662273F
+6. Network: Ropsten
+   Deploy Contract Address: 0xE76E14297D76b4B83A675353c789D6a7a662273F
    https://ropsten.etherscan.io/address/0xE76E14297D76b4B83A675353c789D6a7a662273F
 
-7. DAPP.
+7. DAPP. Please look at contract.js
+   Detect MetaMask: Yes
+   Connects to the current account: Yes. Since there are 3 different parties in here ( smart contract creator, homeowner, and applicant), I made it easier for dapp test and allow 1 account to be used so simplify the demo.
+   Displays information from your smart contract: PropertyID and ApplicationID
+   Allows a user to submit a transaction to update smart contract state: Yes.
+   Updates the frontend if the transaction is successful or not: Yes look at the process behind the scene.
 
 8. https://dynamasoft.github.io/blockchain-developer-bootcamp-final-project/
 
 9. Readme file is included
 
-10. Screencast. 
+10. Screencast. can be found in here.
+
 
 
 
