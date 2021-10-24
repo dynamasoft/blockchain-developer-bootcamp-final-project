@@ -11,7 +11,7 @@ export default class Contract {
   }
 
   //using local blockchain hardhat node
-  async initialize(useLocalNode) {    
+  async initialize(useLocalNode) {   
       this.useLocalNode = useLocalNode;
 
       if (this.useLocalNode) {
