@@ -2,7 +2,7 @@
 
 Introduction
 
-Roomilicious is a secure house sharing platform marketplace. This platform helps the landlord market their empty sparebedrooms and to find compatible housemates to share the home. The platform gives everyone the peace of mind in the rental process by ensuring that all party can transact safely powered by blockchain technology.
+Roomilicious is a secure house sharing platform marketplace. This platform helps the landlord market their empty spare bedrooms and to find compatible housemates to share the home. The platform gives everyone the peace of mind in the rental process by ensuring that all party can transact safely powered by blockchain technology.
 
 Problem Statement
 
