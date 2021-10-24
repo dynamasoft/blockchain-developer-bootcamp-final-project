@@ -12,7 +12,7 @@ Solution
 
 Roomilicious is a room sharing marketplace that leverages smart contract to keep the privacy of both tenant and landlord and simultaneously ensuring the integrity of the rental process. On the top of this Roomilicous also uses a multiparty concensus for the housemates compatibility. Each existing roommate in the property to up or down vote the new housemate based on their preferences. The deposit is stored in the smart contract and 100% guarantee to be returned when the applicant is rejected.
 
-Scope of Project.TEST
+Scope of Project
 
 1. Landlord lists a property for rent. 
 2. Applicant applies to the property with an application fee.
