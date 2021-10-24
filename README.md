@@ -21,6 +21,7 @@ Scope of Project
 5. If approved, applicant pays the deposit to secure the place.
 
 OUT OF SCOPE
+
 6. If there more than 1 existing housemate, it will go through a multi party concensus.
 7. If rejected, the deposit will be transfered back to the tenant, other wise the tenant is good to go to move in. 
 
