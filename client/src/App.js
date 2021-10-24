@@ -21,8 +21,8 @@ function App() {
 
   useEffect(() => {
     setContract(new Contract());
-    displayMessage("Contract instantiated. Be ready to use 3 different account in the metamask, for contract owner, property owner, and applicant.");
-    displayMessage("When you are ready go ahead and click on any apply button above.");
+    displayMessage("Contract is instantiated.");
+    displayMessage("When you are ready go ahead and click on any of the apply button above.");
 
   }, []);
 
@@ -31,16 +31,18 @@ function App() {
   }
 
   const start = async () => {
+
     await contract.initialize(false);
     displayMessage("Contract initialized.");
 
     var propertyID = await contract.listProperty("123 main st", 1500, 2);
     displayMessage("property listed.");
     setPropertyID(propertyID);
-    
+    debugger;
     
     await contract.approvePropertyListing(propertyID);
     displayMessage("Approved property listing.");
+    debugger;
     
     var applicationID = await contract.applyToRental(propertyID, 1500);
     displayMessage(
@@ -50,6 +52,7 @@ function App() {
         applicationID
     );
     setApplicationID(applicationID);
+    debugger;
     await contract.declineApplicant(applicationID);
     displayMessage(
       "Owner declined applicant with applicationID " + applicationID

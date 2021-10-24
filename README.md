@@ -33,13 +33,23 @@ Project Directory Structure
    1. Go to smart contract folder from the terminal
    2. npm install
    3. npx hardhat test
-   4. npx hardhat node (if you want to test the dapp locally)
+   4. npx hardhat run scripts/deploy.js --network localhost
+   5. npx hardhat node (if you want to test the dapp locally)
+
 
 2. client
    this project is using react js as front end and ethers.js to connect to the blockchain. To run locally please follow the steps below:
    1. Go to smart client folder from the terminal
    2. npm install
-   3. npm start
+   3. npm run build
+   4. npm start
+
+   ** Note if you want to test using local node without any interaction with metamask, go to app.js line
+   
+  const start = async () => {
+    await contract.initialize(false);  <-- true for local interaction without metamask, or false for using metamask
+    displayMessage("Contract initialized.");
+
 
    This project had also deployed to https://dynamasoft.github.io
 
@@ -87,3 +97,5 @@ answers:
 
 
 
+Some troubleshooting tips:
+sometimes you might get an error that the nonce is too high, in this case, close your smart contract terminal and rerun the   npx hardhat node
