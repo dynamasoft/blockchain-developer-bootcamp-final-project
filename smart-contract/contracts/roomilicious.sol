@@ -17,9 +17,12 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     /******************************************************************
         STATE VARIABLES DECLARATION
     ******************************************************************/
-
+    using SafeMath for uint256;
     uint constant LISTING_FEE = 1 wei;
     uint constant APPLICATION_FEE = 1 wei;    
+
+     uint256 constant REGISTER_ROOMMATES_THRESHOLD = 2;
+    uint256 constant MULTI_SIG_CONSENSUS_DIVISOR = 2;
     
     enum PropertyStatus {
         Pending,
@@ -70,6 +73,8 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     }
     Application[] private ApplicationList;
     mapping(uint => bool) private ApplicationIDs;
+
+    mapping(uint => uint) RoommatesCountByProperty;
 
     /******************************************************************
         MODIFIER
@@ -325,6 +330,24 @@ contract Roomilicious is Ownable, Pausable, ReentrancyGuard {
     public {
         ApplicationList[applicationID].Status = RentalStatus.MoveIn;
         emit MoveInEvent(applicationID);
+    }
+
+
+    function RoommatesMultipartyApproval(uint propertyID)
+    whenNotPaused
+    public returns(bool)
+    {
+        if (PropertyList[propertyID].TotalHousemates < REGISTER_ROOMMATES_THRESHOLD)
+        {
+            return true;
+        } 
+        else 
+        {
+            if (PropertyList[propertyID].TotalHousemates >= RoommatesCountByProperty[propertyID].div(MULTI_SIG_CONSENSUS_DIVISOR))
+            {
+              return false;
+            }
+        }
     }
 
     /// @notice fallback function 

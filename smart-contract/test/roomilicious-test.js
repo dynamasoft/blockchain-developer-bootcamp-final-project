@@ -84,7 +84,7 @@ describe("Landlord testing", function () {
   it("Landlord - approve applicant test event", async function () {    
     //await new Promise(resolve => setTimeout(resolve, 10000))
     await expect(instance.connect(propertyOwners[0]).startRentalProcess(applicationID))
-    .to.emit(instance, 'StartRentalProcessEvent').withArgs(applicants[0].address);      
+    .to.emit(instance, 'StartRentalProcessEvent').withArgs(applicationID);      
   });
 
   it("Landlord - start rental process", async function () {    
