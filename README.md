@@ -33,9 +33,11 @@ Project Directory Structure
    Please following steps to run the test 
    1. Go to smart contract folder from the terminal
    2. npm install
-   3. npx hardhat test
-   4. npx hardhat run scripts/deploy.js --network localhost
+   3. npx hardhat compile
+   4. npx hardhat test
    5. npx hardhat node (if you want to test the dapp locally)
+   6. npx hardhat run scripts/deploy.js --network localhost
+   
 
 
 2. client
